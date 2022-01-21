@@ -24,7 +24,11 @@ export class AddressForm extends LitElement {
         margin: 15px 0px;
         border-radius: 5px;
       }
-
+      .error {
+        color: #cc0000;
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
       .inner-container {
         display: flex;
         flex-direction: column;
@@ -45,6 +49,7 @@ export class AddressForm extends LitElement {
         padding: 14px;
         background-color: #474f59;
       }
+     
       table {
         max-width: 600px;
         background-color: #2c3845;
@@ -100,15 +105,43 @@ export class AddressForm extends LitElement {
   constructor() {
     super();
     this.title = "";
-    this.values = {};
+    this.values = {
+      streetName: '',
+      houseNumber: '',
+      houseNumberAddition: '',
+      postalCode: '',
+      city: '',
+      additionalInfo: '',
+    };
+    this.errors = {
+      streetName: '',
+      houseNumber: '',
+      houseNumberAddition: '',
+      postalCode: '',
+      city: '',
+      additionalInfo: '',
+    };
     this.display = false;
+    this.disabled = true;
   }
 
   submitForm(e) {
-    e.preventDefault();
-    console.log("this.values:", this.values);
-    this.display = true;
-    this.requestUpdate();
+    this.display = false;
+    let errors = this.errors;
+    let valid = 0
+    let that = this
+    Object.keys(this.errors).forEach(function (key, index) {
+      if (errors[key] != '')
+        valid = valid + 1;
+    });
+    if (valid == 0) {
+      that.display = true;
+      that.requestUpdate();
+    }
+    else {
+      that.display = false;
+      that.requestUpdate();
+    }
   }
 
   renderTable() {
@@ -138,9 +171,20 @@ export class AddressForm extends LitElement {
     `;
   }
 
-  updateValue(name, e) {
+  updateValue(name, e, errorMessage = 'This field contains an error') {
     const inputElement = e.currentTarget;
-    e.preventDefault()
+    this.disabled = false;
+    if (!e.currentTarget.validity?.valid) {
+      this.values[name] = inputElement.value;
+      this.errors[name] = errorMessage
+      this.display = false;
+      this.requestUpdate();
+    }
+    else {
+      this.errors[name] = ''
+
+      this.requestUpdate();
+    }
     if (name === 'postalCode') {
       if (inputElement.value.substring(4, 5) != ' ')
         inputElement.value = [inputElement.value.slice(0, 4), ' ', inputElement.value.slice(4)].join('');
@@ -152,54 +196,54 @@ export class AddressForm extends LitElement {
     return html` 
     <h2 class="header">${this.title}</h2>
       <div class="container">
-        <form class="inner-container" id="address-form">
+        <form class="inner-container" id="address-form" onSubmit="return false">
           <label for="street-name"> Street name </label>
+          ${this.errors['streetName'] ? html`<div class="error">*${this.errors['streetName']}</div>` : ""}
           <input type="text" 
-              required 
+              required
               id="street-name" 
               maxlength="30" pattern="^[a-zA-Z0-9 ]+$" 
-              oninvalid="()=>{this.setCustomValidity('Required, only alpha-numeric characters allowed'); this.checkValidity()" 
-              @change=${(e) => this.updateValue('streetName', e)}
+              @input=${(e) => this.updateValue('streetName', e, 'Required, only alpha-numeric characters allowed')}
             />
 
           <label for="house-number"> House number </label>
+          ${this.errors['houseNumber'] ? html`<div class="error">*${this.errors['houseNumber']}</div>` : ""}
           <input type="text"
               required 
-              id="house-number" 
+              id="houseNumber" 
               maxlength="5" 
               pattern="^[0-9]+$" 
-              oninvalid="()=>{this.setCustomValidity('Only numeric characters allowed'); this.checkValidity()" 
-              @change=${(e) => this.updateValue('houseNumber', e)}
+              @change=${(e) => this.updateValue('houseNumber', e, 'Only numeric characters allowed')}
             />
-
+           
           <label for="house-number-addition"> House number addition</label>
+          ${this.errors['houseNumberAddition'] ? html`<div class="error">*${this.errors['houseNumberAddition']}</div>` : ""}
           <input type="text" 
               id="house-number-addition" 
               maxlength="5" 
-              pattern="^[a-zA-Z0-9]+$" oninvalid="()=>{this.setCustomValidity('Only alpha-numeric characters allowed'); 
-              this.checkValidity()" @change=${(e) => this.updateValue('houseNumberAddition', e)}
+              @change=${(e) => this.updateValue('houseNumberAddition', e, 'Only alpha-numeric characters allowed')}
             />
 
-
           <label for="postal-code"> Postal code </label>
+          ${this.errors['postalCode'] ? html`<div class="error">*${this.errors['postalCode']}</div>` : ""}
           <input type="text" 
               required 
               id="postal-code" 
               pattern="[0-9]{4}[A-Z]{2}|[0-9]{4} [A-Z]{2}" 
-              oninvalid="()=>{this.setCustomValidity('Please match NNNNAA or NNNN AA format'); this.checkValidity()" 
-              @change=${(e) => this.updateValue('postalCode', e)}
+              @change=${(e) => this.updateValue('postalCode', e, 'Please match NNNNAA or NNNN AA format')}
             />
 
-
           <label for="city"> City </label>
+          ${this.errors['city'] ? html`<div class="error">*${this.errors['city']}</div>` : ""}
           <input type="text" 
               id='city'
               required 
               maxlength="30" 
               @change=${(e) => this.updateValue('city', e)}
             />
-
+          
           <label for="additional-information"> Additional information </label>
+          ${this.errors['additionalInfo'] ? html`<div class="error">*${this.errors['additionalInfo']}</div>` : ""}
           <input
               type="text"
               id="additional-information"
@@ -207,11 +251,11 @@ export class AddressForm extends LitElement {
               pattern="^[a-zA-Z0-9 ]+$" 
               @change=${(e) => this.updateValue("additionalInfo", e)}
            />
-
-          <button @submit="${(e)=>this.submitForm(e)}">Submit</button>
-
+          ${this.disabled ?
+            html`<button disabled @click="${(e) => this.submitForm(e)}">Submit</button>` :
+            html`<button @click="${(e) => this.submitForm(e)}">Submit</button>`}
         </form>
-
+      
         ${this.display ? this.renderTable() : ""}
 
       </div>
