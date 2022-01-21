@@ -101,10 +101,40 @@ export class AddressForm extends LitElement {
     super();
     this.title = "";
     this.values = {};
+    this.display = false;
   }
 
   submitForm() {
     console.log("this.values:", this.values);
+    this.display = true;
+    this.requestUpdate();
+  }
+
+  renderTable() {
+    return html`
+      <table>
+        <tbody>
+          <tr>
+            <td colspan="3">
+              Additional information:
+              <span>${this.values.additionalInfo}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>Street Name: <span>${this.values.streetName}</span></td>
+            <td>House number: <span>${this.values.houseNumber}</span></td>
+            <td>
+              House number addition:
+              <span>${this.values.houseNumberAddition}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>Postal code: <span>${this.values.postalCode}</span></td>
+            <td colspan="2">City: <span>${this.values.city}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    `;
   }
 
   updateValue(name, e) {
@@ -166,28 +196,7 @@ export class AddressForm extends LitElement {
           />
           <button @click="${this.submitForm}">Submit</button>
         </div>
-        <table>
-          <tbody>
-            <tr>
-              <td colspan="3">
-                Additional information:
-                <span>${this.values.additionalInfo}</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Street Name: <span>${this.values.streetName}</span></td>
-              <td>House number: <span>${this.values.houseNumber}</span></td>
-              <td>
-                House number addition:
-                <span>${this.values.houseNumberAddition}</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Postal code: <span>${this.values.postalCode}</span></td>
-              <td colspan="2">City: <span>${this.values.city}</span></td>
-            </tr>
-          </tbody>
-        </table>
+        ${this.display ? this.renderTable() : ""}
       </div>
     `;
   }
