@@ -101,10 +101,41 @@ export class AddressForm extends LitElement {
     super();
     this.title = "";
     this.values = {};
+    this.display = false;
   }
 
-  submitForm() {
+  submitForm(e) {
+    e.preventDefault();
     console.log("this.values:", this.values);
+    this.display = true;
+    this.requestUpdate();
+  }
+
+  renderTable() {
+    return html`
+      <table>
+        <tbody>
+          <tr>
+            <td colspan="3">
+              Additional information:
+              <span>${this.values.additionalInfo}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>Street Name: <span>${this.values.streetName}</span></td>
+            <td>House number: <span>${this.values.houseNumber}</span></td>
+            <td>
+              House number addition:
+              <span>${this.values.houseNumberAddition}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>Postal code: <span>${this.values.postalCode}</span></td>
+            <td colspan="2">City: <span>${this.values.city}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    `;
   }
 
   updateValue(name, e) {
@@ -128,7 +159,8 @@ export class AddressForm extends LitElement {
               id="street-name" 
               maxlength="30" pattern="^[a-zA-Z0-9 ]+$" 
               oninvalid="()=>{this.setCustomValidity('Required, only alpha-numeric characters allowed'); this.checkValidity()" 
-              @change=${(e) => this.updateValue('streetName', e)}>
+              @change=${(e) => this.updateValue('streetName', e)}
+            />
 
           <label for="house-number"> House number </label>
           <input type="text"
@@ -137,14 +169,16 @@ export class AddressForm extends LitElement {
               maxlength="5" 
               pattern="^[0-9]+$" 
               oninvalid="()=>{this.setCustomValidity('Only numeric characters allowed'); this.checkValidity()" 
-              @change=${(e) => this.updateValue('houseNumber', e)}>
+              @change=${(e) => this.updateValue('houseNumber', e)}
+            />
 
           <label for="house-number-addition"> House number addition</label>
           <input type="text" 
               id="house-number-addition" 
               maxlength="5" 
               pattern="^[a-zA-Z0-9]+$" oninvalid="()=>{this.setCustomValidity('Only alpha-numeric characters allowed'); 
-              this.checkValidity()" @change=${(e) => this.updateValue('houseNumberAddition', e)}>
+              this.checkValidity()" @change=${(e) => this.updateValue('houseNumberAddition', e)}
+            />
 
 
           <label for="postal-code"> Postal code </label>
@@ -153,7 +187,8 @@ export class AddressForm extends LitElement {
               id="postal-code" 
               pattern="[0-9]{4}[A-Z]{2}|[0-9]{4} [A-Z]{2}" 
               oninvalid="()=>{this.setCustomValidity('Please match NNNNAA or NNNN AA format'); this.checkValidity()" 
-              @change=${(e) => this.updateValue('postalCode', e)}>
+              @change=${(e) => this.updateValue('postalCode', e)}
+            />
 
 
           <label for="city"> City </label>
@@ -161,41 +196,24 @@ export class AddressForm extends LitElement {
               id='city'
               required 
               maxlength="30" 
-              @change=${(e) => this.updateValue('city', e)}>
-
+              @change=${(e) => this.updateValue('city', e)}
+            />
 
           <label for="additional-information"> Additional information </label>
-          <input type="text" 
-              id="additional-information" 
-              maxlength="50"  
+          <input
+              type="text"
+              id="additional-information"
+              maxlength="50"
               pattern="^[a-zA-Z0-9 ]+$" 
-              @change=${(e) => this.updateValue('additionalInfo', e)}>
+              @change=${(e) => this.updateValue("additionalInfo", e)}
+           />
 
-          <button @submit="${this.submitForm}">Submit</button>
+          <button @submit="${(e)=>this.submitForm(e)}">Submit</button>
 
         </form>
-        <table>
-          <tbody>
-            <tr>
-              <td colspan="3">
-                Additional information:
-                <span>${this.values.additionalInfo}</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Street Name: <span>${this.values.streetName}</span></td>
-              <td>House number: <span>${this.values.houseNumber}</span></td>
-              <td>
-                House number addition:
-                <span>${this.values.houseNumberAddition}</span>
-              </td>
-            </tr>
-            <tr>
-              <td>Postal code: <span>${this.values.postalCode}</span></td>
-              <td colspan="2">City: <span>${this.values.city}</span></td>
-            </tr>
-          </tbody>
-        </table>
+
+        ${this.display ? this.renderTable() : ""}
+
       </div>
     `;
   }
