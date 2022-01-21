@@ -14,11 +14,15 @@
   <script type="module">
     import { html, render } from 'lit-html';
     import '../address-form.js';
+    import '../form-input-element.js';
 
     const title = 'Address details form';
+    const fieldOne = {label:'Field One',
+    value:'Field One Value'};
     render(
       html`
         <address-form .title=${title}>
+          <form-input-element .value=${fieldOne.value} .label=${fieldOne.label}>
         </address-form>
       `,
       document.querySelector('#demo')
