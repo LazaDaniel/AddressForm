@@ -36,13 +36,14 @@ export class AddressForm extends LitElement {
   }
 
   updateValue(name, e) {
-    this.values[name] = e.srcElement.value;
+    const inputElement = e.currentTarget;
+    this.values[name] = inputElement.value;
   }
 
   render() {
     return html`
       <h2>${this.title}</h2>
-      <div class="container" id="address-form">
+      <form class="container" id="address-form">
         <label for="street-name"> Street name </label>
         <input type="text" id="street-name" maxlength="30" pattern="[a-zA-Z0-9]+$" @change=${(e) => this.updateValue('streetName', e)}>
 
@@ -60,7 +61,7 @@ export class AddressForm extends LitElement {
         
         <label for="additional-information"> Additional information </label>
         <input type="text" id="additional-information" maxlength="50" @change=${(e) => this.updateValue('additionalInfo', e)}>
-      </div>
+      </form>
 
       <button @click="${this.submitForm}"> Submit </button>
     `;
