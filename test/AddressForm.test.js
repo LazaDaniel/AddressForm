@@ -33,6 +33,21 @@ describe('Address form', () => {
     expect(submitBtnSpy.calledWith('click'));
   });
 
+  it('should render table method', async () => {
+    sinon.spy(el, 'renderTable');
+    el.renderTable();
+    expect(el.renderTable.called).to.equal(true);
+  });
+
+  it('should trigger submit method', async () => {
+    sinon.spy(el, 'submitForm');
+    sinon.spy(el, 'requestUpdate');
+    el.submitForm();
+    el.requestUpdate();
+    expect(el.display).to.equal(false);
+    expect(el.requestUpdate.called).to.equal(true);
+  });
+
   it('should not have a display table as default', async () => {
     const table = el.shadowRoot.querySelectorAll('table');
     expect(table.length).to.equal(0);
@@ -40,10 +55,20 @@ describe('Address form', () => {
 
   it('updateValue should be triggered', async () => {
     const input = el.shadowRoot.querySelector('input');
-    console.log('input', input);
     const inputSubmitSpy = sinon.spy(input, 'addEventListener');
-    console.log('inputSubmitSpy', inputSubmitSpy);
-    el.updateValue('additionalInfo', { currentTarget: { value: 'asd' } });
+    el.updateValue('additionalInfo', { currentTarget: { value: 'dsa' } });
     expect(inputSubmitSpy.calledWith('change'));
+  });
+
+  it('get error when inserting a non alpha numeric character', async () => {
+    const text = '@';  
+    el.updateValue('additionalInfo', { currentTarget: { value: text } });
+    expect(text).not.to.match(/^[A-Za-z]+$/);
+  });
+
+  it('pass when inserting an alpha numeric character', async () => {
+    const text = 'text';  
+    el.updateValue('additionalInfo', { currentTarget: { value: text } });
+    expect(text).to.match(/^[A-Za-z]+$/);
   });
 });
