@@ -121,27 +121,15 @@ export class AddressForm extends LitElement {
       city: '',
       additionalInfo: '',
     };
+    this.required = {
+      streetName: true,
+      houseNumber: true,
+      houseNumberAddition: false,
+      postalCode: true,
+      city: true,
+      additionalInfo: false,
+    };
     this.display = false;
-    this.disabled = true;
-  }
-
-  submitForm(e) {
-    this.display = false;
-    let errors = this.errors;
-    let valid = 0
-    let that = this
-    Object.keys(this.errors).forEach(function (key, index) {
-      if (errors[key] != '')
-        valid = valid + 1;
-    });
-    if (valid == 0) {
-      that.display = true;
-      that.requestUpdate();
-    }
-    else {
-      that.display = false;
-      that.requestUpdate();
-    }
   }
 
   renderTable() {
@@ -171,9 +159,30 @@ export class AddressForm extends LitElement {
     `;
   }
 
+  
+  submitForm(e) {
+    this.display = false;
+    let valid = 0
+    Object.keys(this.errors).forEach((key) => {
+      if ((this.required[key] === true && this.values[key] === '')) {
+        this.errors[key] = 'Required'
+      }
+      if (this.errors[key] != '') {
+        valid = valid + 1;
+      }
+    });
+    if (valid == 0) {
+      this.display = true;
+      this.requestUpdate();
+    }
+    else {
+      this.display = false;
+      this.requestUpdate();
+    }
+  }
+
   updateValue(name, e, errorMessage = 'This field contains an error') {
     const inputElement = e.currentTarget;
-    this.disabled = false;
     if (!e.currentTarget.validity?.valid) {
       this.values[name] = inputElement.value;
       this.errors[name] = errorMessage
@@ -181,8 +190,7 @@ export class AddressForm extends LitElement {
       this.requestUpdate();
     }
     else {
-      this.errors[name] = ''
-
+      this.errors[name] = '';
       this.requestUpdate();
     }
     if (name === 'postalCode') {
@@ -251,9 +259,7 @@ export class AddressForm extends LitElement {
               pattern="^[a-zA-Z0-9 ]+$" 
               @change=${(e) => this.updateValue("additionalInfo", e)}
            />
-          ${this.disabled ?
-            html`<button disabled @click="${(e) => this.submitForm(e)}">Submit</button>` :
-            html`<button @click="${(e) => this.submitForm(e)}">Submit</button>`}
+         <button @click="${(e) => this.submitForm(e)}">Submit</button>
         </form>
       
         ${this.display ? this.renderTable() : ""}
