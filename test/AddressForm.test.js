@@ -33,12 +33,17 @@ describe('Address form', () => {
     expect(submitBtnSpy.calledWith('click'));
   });
 
+  it('should not have a display table as default', async () => {
+    const table = el.shadowRoot.querySelectorAll('table');
+    expect(table.length).to.equal(0);
+  });
+
   it('updateValue should be triggered', async () => {
     const input = el.shadowRoot.querySelector('input');
     console.log('input', input);
     const inputSubmitSpy = sinon.spy(input, 'addEventListener');
     console.log('inputSubmitSpy', inputSubmitSpy);
-    el.updateValue('additionalInfo', {currentTarget: {value: 'asd'}});
+    el.updateValue('additionalInfo', { currentTarget: { value: 'asd' } });
     expect(inputSubmitSpy.calledWith('change'));
   });
 });
